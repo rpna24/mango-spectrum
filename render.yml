@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: mango-spectrum-viewer
+    env: python
+    buildCommand: ""
+    startCommand: gunicorn mango_app:app.server
+    plan: free

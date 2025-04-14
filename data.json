@@ -1,0 +1,16 @@
+[
+    {
+        "MinFrequency": 1164,
+        "MaxFrequency": 76000,
+        "Latitude": 40.7128,
+        "Longitude": -74.0060,
+        "Bandwidth": 40
+    },
+    {
+        "MinFrequency": 1300,
+        "MaxFrequency": 86000,
+        "Latitude": 40.7308,
+        "Longitude": -73.9975,
+        "Bandwidth": 80
+    }
+]

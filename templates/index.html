@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mango Spectrum Viewer</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>Filter Spectrum</h2>
+    <label>Latitude (- South): <input type="number" id="latitude" step="0.000001" value="-28.3"></label>
+    <label>Longitude (+ East): <input type="number" id="longitude" step="0.000001" value="153.5"></label>
+    <label>Radius (km): <input type="number" id="radius" value="100"></label>
+    <label>Min Frequency (MHz): <input type="number" id="min_freq" value="1000"></label>
+    <label>Max Frequency (MHz): <input type="number" id="max_freq" value="12000"></label>
+    <button onclick="fetchData()">Plot Spectrum</button>
+</div>
+
+<div class="main">
+    <div id="frequency-plot">Waiting for input...</div>
+</div>
+
+<script src="/static/script.js"></script>
+</body>
+</html>

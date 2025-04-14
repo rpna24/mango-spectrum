@@ -1,0 +1,50 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    background: #f3f7fa;
+}
+
+.sidebar {
+    width: 300px;
+    background: #003366;
+    color: white;
+    padding: 20px;
+}
+
+.sidebar label {
+    display: block;
+    margin: 10px 0 5px;
+}
+
+.sidebar input {
+    width: 100%;
+    padding: 6px;
+    border: none;
+    border-radius: 4px;
+}
+
+.sidebar button {
+    margin-top: 15px;
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(to right, #0072ff, #00c6ff);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.main {
+    flex: 1;
+    padding: 30px;
+}
+
+#frequency-plot {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    height: 600px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
