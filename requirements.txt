@@ -3,3 +3,5 @@ plotly
 pandas
 openpyxl
 gunicorn
+env: python
+pythonVersion: 3.9
