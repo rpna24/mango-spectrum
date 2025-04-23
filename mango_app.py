@@ -174,6 +174,11 @@ def show_click_data(clickData):
          'border': '1px solid #ccc', 'borderRadius': '6px',
          'backgroundColor': '#f9f9f9', 'fontSize': '16px'}
     )
+import os
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 8050))
+    app.run(host="0.0.0.0", port=port, debug=False)
+
+# if __name__ == '__main__':
+#     app.run(debug=True)
