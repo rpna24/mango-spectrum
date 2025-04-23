@@ -3,6 +3,9 @@ import math
 from dash import Dash, dcc, html, Input, Output
 import plotly.graph_objects as go
 
+app = Dash(__name__)
+server = app.server  # 👈 REQUIRED FOR GUNICORN
+
 # Load Excel
 df = pd.read_excel("Mango_Data.xlsx")
 df["Latitude"] = df["Latitude"].round(6)
