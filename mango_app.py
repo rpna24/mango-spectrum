@@ -68,8 +68,7 @@ app.layout = html.Div([
         'fontSize': '16px',
         'display': 'none'
     })
-    html.H1("✅ Hello from Mango Viewer"),
-    html.P("This is a deployment test on Render.")
+  
 ])
 
 @app.callback(
