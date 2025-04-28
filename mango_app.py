@@ -42,7 +42,7 @@ server = app.server  # 👈 This is what gunicorn uses
 app.title = "Mango Frequency Spectrum Viewer"
 
 app.layout = html.Div([
-    html.H1("✅ Hello from Mango Frequency Viewer!")
+   
     html.H1("📡 Mango Frequency Spectrum Viewer", style={'textAlign': 'center'}),
 
     html.Div([
