@@ -1,5 +1,3 @@
-from dash import Dash, html
-import os
 import pandas as pd
 import math
 from dash import Dash, dcc, html, Input, Output
@@ -35,14 +33,15 @@ def get_distance(lat1, lon1, lat2, lon2):
         math.cos(math.radians(lat2)) * math.sin(dlon/2)**2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     return R * c
+from dash import Dash, html
+import os
 
 # Dash App
 app = Dash(__name__)
-server = app.server  # 👈 This is what gunicorn uses
 app.title = "Mango Frequency Spectrum Viewer"
+server = app.server  # 🔥 This is required by gunicorn
 
 app.layout = html.Div([
-   
     html.H1("📡 Mango Frequency Spectrum Viewer", style={'textAlign': 'center'}),
 
     html.Div([
@@ -69,6 +68,8 @@ app.layout = html.Div([
         'fontSize': '16px',
         'display': 'none'
     })
+    html.H1("✅ Hello from Mango Viewer"),
+    html.P("This is a deployment test on Render.")
 ])
 
 @app.callback(
@@ -185,9 +186,8 @@ def show_click_data(clickData):
 import os
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 8050))
-    app.run(host="0.0.0.0", port=port)
-
+port = int(os.environ.get("PORT", 8050))
+app.run(host="0.0.0.0", port=port)
     
 
 
