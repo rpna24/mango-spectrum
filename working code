@@ -3,9 +3,6 @@ import math
 from dash import Dash, dcc, html, Input, Output
 import plotly.graph_objects as go
 
-app = Dash(__name__)
-server = app.server  # 👈 REQUIRED FOR GUNICORN
-
 # Load Excel
 df = pd.read_excel("Mango_Data.xlsx")
 df["Latitude"] = df["Latitude"].round(6)
@@ -33,15 +30,13 @@ def get_distance(lat1, lon1, lat2, lon2):
         math.cos(math.radians(lat2)) * math.sin(dlon/2)**2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     return R * c
-from dash import Dash, html
-import os
 
 # Dash App
 app = Dash(__name__)
 app.title = "Mango Frequency Spectrum Viewer"
-server = app.server  # 🔥 This is required by gunicorn
 
 app.layout = html.Div([
+    
     html.H1("📡 Mango Frequency Spectrum Viewer", style={'textAlign': 'center'}),
 
     html.Div([
@@ -68,7 +63,6 @@ app.layout = html.Div([
         'fontSize': '16px',
         'display': 'none'
     })
-  
 ])
 
 @app.callback(
@@ -183,20 +177,9 @@ def show_click_data(clickData):
     )
 import os
 
-import os
-
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8050))
-<<<<<<< HEAD
     app.run(host="0.0.0.0", port=port, debug=False)
 
 # if __name__ == '__main__':
 #     app.run(debug=True)
-=======
-    app.run(host="0.0.0.0", port=port)
-    
-
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
->>>>>>> d54850e805c68e54f7b78d20aac8b621d8db7cb8
