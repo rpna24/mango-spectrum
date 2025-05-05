@@ -247,4 +247,20 @@ def show_map(n_clicks, lat, lon, radius):
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8050))
+<<<<<<< HEAD
     app.run(host="0.0.0.0", port=port, debug=False)
+=======
+# <<<<<<< HEAD
+    app.run(host="0.0.0.0", port=port, debug=False)
+
+# if __name__ == '__main__':
+#     app.run(debug=True)
+# =======
+    app.run(host="0.0.0.0", port=port)
+    
+
+
+# if __name__ == '__main__':
+#     app.run(debug=True)
+# >>>>>>> d54850e805c68e54f7b78d20aac8b621d8db7cb8
+>>>>>>> 5bfe513ac9d13022896744b88c76821cc2f8d494
