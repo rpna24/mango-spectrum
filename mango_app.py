@@ -40,8 +40,9 @@ app.title = "Mango Frequency Spectrum Viewer"
 
 # Theme Colors
 theme = {
-    "background": "rebeccapurple",
-    "plot_bgcolor": "midnightblue",
+    "background": "#660033",
+    "plot_bgcolor": "#191970",
+    "plot_border": "#000099",
     "font_color": "white"
 }
 
@@ -67,7 +68,6 @@ button_style = {
     'boxShadow': '0 4px 8px rgba(0,0,0,0.3)'
 }
 
-# Layout
 app.layout = html.Div([
     dcc.Store(id='submit-trigger', data=0),
 
@@ -96,15 +96,18 @@ app.layout = html.Div([
         ]),
         html.Button('🔎 Enter', id='submit-button', n_clicks=0, style=button_style),
         html.Button('🗺️ Plot Nearby Points', id='map-button', n_clicks=0, style=button_style),
-    ], id="input-div", style={'display': 'flex', 'gap': '15px', 'flexWrap': 'wrap', 'justifyContent': 'center', 'marginBottom': '30px'}),
+    ], style={'display': 'flex', 'gap': '15px', 'flexWrap': 'wrap', 'justifyContent': 'center', 'marginBottom': '30px'}),
 
-    dcc.Graph(id='spectrum-plot'),
+    html.Div([
+        dcc.Graph(id='spectrum-plot', style={'border': f'6px solid {theme["plot_border"]}'})
+    ]),
 
     html.Div(id='click-output', style={
         'marginTop': '20px',
         'padding': '20px',
         'borderRadius': '10px',
-        'backgroundColor': '#ffffff',
+        'backgroundColor': theme["plot_border"],
+        'color': 'white',
         'fontSize': '18px',
         'display': 'none'
     }),
@@ -112,9 +115,6 @@ app.layout = html.Div([
     dcc.Input(id='hidden-enter', type='text', style={'display': 'none'})
 ], style={'background': theme["background"], 'minHeight': '100vh', 'padding': '30px'})
 
-# --- Callbacks ---
-
-# Trigger update
 @app.callback(
     Output('submit-trigger', 'data'),
     Input('submit-button', 'n_clicks'),
@@ -123,7 +123,6 @@ app.layout = html.Div([
 def trigger_submit(n_clicks, n_submit):
     return (n_clicks or 0) + (n_submit or 0)
 
-# Spectrum Plot
 @app.callback(
     Output('spectrum-plot', 'figure'),
     Input('submit-trigger', 'data'),
@@ -176,7 +175,6 @@ def update_plot(n, lat, lon, radius, min_freq, max_freq):
 
     return go.Figure(data=overlay_traces, layout=layout)
 
-# Display details when click bar
 @app.callback(
     Output('click-output', 'children'),
     Output('click-output', 'style'),
@@ -199,10 +197,15 @@ def display_click_info(clickData):
             html.P(f"Frequency: {frequency} MHz"),
             html.P(f"Bandwidth: {bandwidth} MHz"),
         ]),
-        {'display': 'block'}
+        {'display': 'block',
+         'marginTop': '20px',
+         'padding': '20px',
+         'borderRadius': '10px',
+         'backgroundColor': theme["plot_border"],
+         'color': 'white',
+         'fontSize': '18px'}
     )
 
-# Plot Nearby Points
 @app.callback(
     Output('hidden-enter', 'value'),
     Input('map-button', 'n_clicks'),
@@ -229,12 +232,12 @@ def show_map(n_clicks, lat, lon, radius):
         height=900
     )
 
-    # Add Green Star for POI
+    # Always show POI marker
     fig.add_scattermapbox(
         lat=[lat],
         lon=[lon],
         mode='markers',
-        marker=dict(size=40, color='Green', symbol="Star"),
+        marker=dict(size=18, color='limegreen', symbol="star"),
         name="Point of Interest"
     )
 
@@ -247,20 +250,4 @@ def show_map(n_clicks, lat, lon, radius):
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8050))
-<<<<<<< HEAD
     app.run(host="0.0.0.0", port=port, debug=False)
-=======
-# <<<<<<< HEAD
-    app.run(host="0.0.0.0", port=port, debug=False)
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
-# =======
-    app.run(host="0.0.0.0", port=port)
-    
-
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
-# >>>>>>> d54850e805c68e54f7b78d20aac8b621d8db7cb8
->>>>>>> 5bfe513ac9d13022896744b88c76821cc2f8d494
