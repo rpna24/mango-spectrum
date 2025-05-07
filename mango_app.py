@@ -201,7 +201,7 @@ def display_click_info(clickData):
          'marginTop': '20px',
          'padding': '20px',
          'borderRadius': '10px',
-         'backgroundColor': theme["plot_border"],
+         'backgroundColor': theme["background"],
          'color': 'white',
          'fontSize': '18px'}
     )
