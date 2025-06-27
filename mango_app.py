@@ -112,8 +112,29 @@ app.layout = html.Div([
         'display': 'none'
     }),
 
-    dcc.Input(id='hidden-enter', type='text', style={'display': 'none'})
+    dcc.Input(id='hidden-enter', type='text', style={'display': 'none'}),
+
+    # Enhanced Enter key support for all fields/buttons
+    html.Script("""
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        const active = document.activeElement;
+
+        // If the user is inside any of our custom input fields
+        if (active && active.tagName === 'INPUT' && ['latitude', 'longitude', 'radius', 'min_freq', 'max_freq'].includes(active.id)) {
+            const enterButton = document.querySelector('#submit-button');
+            if (enterButton) {
+                event.preventDefault();  // Prevent form submit (if any)
+                enterButton.click();     // Trigger the Enter button
+            }
+        }
+    }
+});
+""")
+
 ], style={'background': theme["background"], 'minHeight': '100vh', 'padding': '30px'})
+
+# CALLBACKS
 
 @app.callback(
     Output('submit-trigger', 'data'),
@@ -232,7 +253,6 @@ def show_map(n_clicks, lat, lon, radius):
         height=900
     )
 
-    # Always show POI marker
     fig.add_scattermapbox(
         lat=[lat],
         lon=[lon],
