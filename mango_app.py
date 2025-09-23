@@ -40,11 +40,7 @@ LICENCE_NO_CANDS = [
 ]
 SITE_ID_CANDS = ["Site_ID", "SiteID", "Site Id", "Site_No", "Site_Number", "Site Number", "Site"]
 
-<<<<<<< HEAD
 LICENCE_NO_COL = next((c for c in LICENCE_NO_CANDS if c in df.columns),None)
-=======
-LICENCE_NO_COL = next((c for c in LICENCE_NO_CANDS if c in df.columns), None)
->>>>>>> 03d872b8e61df0eefb49fb1987c551bc76eb0c1c
 SITE_ID_COL    = next((c for c in SITE_ID_CANDS   if c in df.columns), None)
 
 # Bandwidth handling (prefer Bandwidth_MHz, else convert from kHz, else 0)
@@ -202,25 +198,15 @@ button_style = {
 
 app.layout = html.Div([
     html.H1("📡 Mango Frequency Spectrum Viewer",
-<<<<<<< HEAD
 
             style={'textAlign': 'center', 'color': theme["font_color"], 'marginBottom': '10px'}),
-=======
-            style={'textAlign': 'center', 'color': theme["font_color"], 'marginBottom': '10px'}),
-
->>>>>>> 03d872b8e61df0eefb49fb1987c551bc76eb0c1c
     # Controls
     html.Div([
         html.Div([
             html.Label("Latitude (− South):", style={'color': theme["font_color"]}),
             dcc.Input(id='latitude', type='number',
-<<<<<<< HEAD
                       value= float(df["Latitude"].dropna().iloc[0]) if df["Latitude"].notna().any() else -28.300000,
                       step=0.000001, debounce= True, style=input_style),
-=======
-                      value=float(df["Latitude"].dropna().iloc[0]) if df["Latitude"].notna().any() else -28.300000,
-                      step=0.000001, debounce=True, style=input_style),
->>>>>>> 03d872b8e61df0eefb49fb1987c551bc76eb0c1c
         ]),
         html.Div([
             html.Label("Longitude (+ East):", style={'color': theme["font_color"]}),
@@ -233,11 +219,7 @@ app.layout = html.Div([
             dcc.Input(id='radius', type='number', value=25, debounce=True, style=input_style),
         ]),
 
-<<<<<<< HEAD
         # Frequency Inputs (kept in sync with slider)
-=======
-        # Frequency inputs (kept in sync with slider)
->>>>>>> 03d872b8e61df0eefb49fb1987c551bc76eb0c1c
         html.Div([
             html.Label("Min Freq (MHz):", style={'color': theme["font_color"]}),
             dcc.Input(id='min_freq_input', type='number', value=7500, debounce=True, style=input_style),
@@ -405,11 +387,7 @@ def update_plot(n_clicks, lat, lon, radius, freq_range, licence_query, site_quer
                 paper_bgcolor=theme["background"],
                 plot_bgcolor=theme["plot_bgcolor"],
                 font_color=theme["font_color"],
-<<<<<<< HEAD
                 title="No allocation for the entered Licence/Site."
-=======
-                title="No allocations for the entered Licence/Site."
->>>>>>> 03d872b8e61df0eefb49fb1987c551bc76eb0c1c
             )
             return fig
 
@@ -418,11 +396,8 @@ def update_plot(n_clicks, lat, lon, radius, freq_range, licence_query, site_quer
         dynamic_min = lo if lo is not None else FREQ_MIN
         dynamic_max = hi if hi is not None else FREQ_MAX
 
-<<<<<<< HEAD
 
         #Costinamo 736  2225: 2961 ->4940
-=======
->>>>>>> 03d872b8e61df0eefb49fb1987c551bc76eb0c1c
         # Build bars (no distance filter; use all matched rows)
         filtered = filtered.sort_values(["Device_Type", "MinFrequency", "MaxFrequency"]).reset_index(drop=True)
         filtered = assign_lanes(filtered)
@@ -794,8 +769,4 @@ def open_map_new_tab(n_clicks, lat, lon, radius, freq_range, licence_query, site
 # ------------------ Main ------------------
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8050))
-<<<<<<< HEAD
     app.run(host="0.0.0.0", port=port, debug=False)
-=======
-    app.run(host="0.0.0.0", port=port, debug=False)
->>>>>>> 03d872b8e61df0eefb49fb1987c551bc76eb0c1c
