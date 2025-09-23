@@ -1,3 +1,6 @@
 {
-    "liveServer.settings.port": 5501
+    "liveServer.settings.port": 5501,
+    "vs-browser.autoCompleteUrl": "https://www.google.com/search?q=",
+    "vscode-edge-devtools.headless": true,
+    "liveServer.settings.AdvanceCustomBrowserCmdLine": ""
 }
