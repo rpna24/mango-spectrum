@@ -3,9 +3,5 @@ services:
     name: mango-spectrum
     env: python
     buildCommand: ""
-<<<<<<< HEAD
-    startCommand: mango_app:app.server
-=======
     startCommand: gunicorn mango_app:server
->>>>>>> d54850e805c68e54f7b78d20aac8b621d8db7cb8
     plan: free
