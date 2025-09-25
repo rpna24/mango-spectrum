@@ -396,8 +396,6 @@ def update_plot(n_clicks, lat, lon, radius, freq_range, licence_query, site_quer
         dynamic_min = lo if lo is not None else FREQ_MIN
         dynamic_max = hi if hi is not None else FREQ_MAX
 
-
-        #Costinamo 736  2225: 2961 ->4940
         # Build bars (no distance filter; use all matched rows)
         filtered = filtered.sort_values(["Device_Type", "MinFrequency", "MaxFrequency"]).reset_index(drop=True)
         filtered = assign_lanes(filtered)
