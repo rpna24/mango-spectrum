@@ -69,6 +69,10 @@ df["MaxFrequency"] = df["Frequency"] + (df["Bandwidth_MHz"] / 2)
 FREQ_MIN = max(0, int(df["MinFrequency"].min() // 10 * 10))
 FREQ_MAX = int((df["MaxFrequency"].max() // 10 + 1) * 10)
 
+# Bandwidth slider bounds
+BW_MIN = max(0, int(df["Bandwidth_MHz"].min() // 1 * 1))
+BW_MAX = int((df["Bandwidth_MHz"].max() // 1 + 1) * 1)
+
 # ------------------ Utils ------------------
 def get_distance(lat1, lon1, lat2, lon2):
     R = 6371.0
@@ -169,10 +173,22 @@ def derive_freq_span(filtered: pd.DataFrame):
         lo, hi = hi, lo
     return int(lo), int(hi)
 
+def derive_bw_span(filtered: pd.DataFrame):
+    """Return [min, max] MHz covering filtered rows for Bandwidth."""
+    if filtered.empty:
+        return None, None
+    lo = float(filtered["Bandwidth_MHz"].min())
+    hi = float(filtered["Bandwidth_MHz"].max())
+    lo = max(BW_MIN, math.floor(lo))
+    hi = min(BW_MAX, math.ceil(hi))
+    if hi < lo:
+        lo, hi = hi, lo
+    return int(lo), int(hi)
+
 # ------------------ Dash App ------------------
 app = Dash(__name__)
 server = app.server
-app.title = "Mango Frequency Spectrum Viewer"
+app.title = "Frequency Spectrum Viewer"
 
 theme = {
     "background": "#0f172a",         # slate-900
@@ -197,7 +213,7 @@ button_style = {
 }
 
 app.layout = html.Div([
-    html.H1("📡 Mango Frequency Spectrum Viewer",
+    html.H1("📡Frequency Spectrum Viewer",
 
             style={'textAlign': 'center', 'color': theme["font_color"], 'marginBottom': '10px'}),
     # Controls
@@ -234,6 +250,20 @@ app.layout = html.Div([
             dcc.RangeSlider(
                 id='freq_range', min=FREQ_MIN, max=FREQ_MAX, step=1,
                 value=[7500, 8000], allowCross=False,
+                tooltip={"always_visible": False}, marks=None, updatemode='mouseup'
+            )
+        ], style={'minWidth': '420px', 'maxWidth': '680px', 'flex': 1, 'padding': '0 10px'}),
+
+        # -------- Bandwidth filter section --------
+        html.Div([
+            html.Label("Bandwidth (MHz) [Exact]:", style={'color': theme["font_color"]}),
+            dcc.Input(id='bandwidth_input', type='number', value=None, debounce=True, placeholder="Enter bandwidth", style=input_style),
+        ]),
+        html.Div([
+            html.Label("Bandwidth Range (MHz):", style={'color': theme["font_color"], 'display': 'block'}),
+            dcc.RangeSlider(
+                id='bw_range', min=BW_MIN, max=BW_MAX, step=1,
+                value=[BW_MIN, BW_MAX], allowCross=False,
                 tooltip={"always_visible": False}, marks=None, updatemode='mouseup'
             )
         ], style={'minWidth': '420px', 'maxWidth': '680px', 'flex': 1, 'padding': '0 10px'}),
@@ -280,15 +310,17 @@ app.layout = html.Div([
     Output('freq_range', 'value'),
     Output('min_freq_input', 'value'),
     Output('max_freq_input', 'value'),
+    Output('bw_range', 'value'),
     Input('freq_range', 'value'),
     Input('min_freq_input', 'value'),
     Input('max_freq_input', 'value'),
     Input('licence_filter', 'value'),
     Input('site_filter', 'value'),
+    Input('bw_range', 'value'),
     prevent_initial_call=False
 )
-def sync_freq_controls(slider_range, min_in, max_in, licence_query, site_query):
-    # If ID filter present and columns exist -> set freq controls from matched rows
+def sync_freq_controls(slider_range, min_in, max_in, licence_query, site_query, bw_range):
+    # If ID filter present and columns exist -> set freq/bw controls from matched rows
     applied = False
     filtered = df
     if (licence_query or "").strip() and LICENCE_NO_COL:
@@ -297,28 +329,35 @@ def sync_freq_controls(slider_range, min_in, max_in, licence_query, site_query):
         filtered = apply_id_filter(filtered, SITE_ID_COL, site_query); applied = True
     if applied and not filtered.empty:
         lo, hi = derive_freq_span(filtered)
-        return [lo, hi], lo, hi
+        bw_lo, bw_hi = derive_bw_span(filtered)
+        return [lo, hi], lo, hi, [bw_lo, bw_hi]
 
     # Otherwise, keep your original sync behavior
     trigger = (callback_context.triggered[0]['prop_id'].split('.')[0]
                if callback_context.triggered else None)
 
     cur_min, cur_max = slider_range if slider_range else (min_in or 7500, max_in or 8000)
+    cur_bw_min, cur_bw_max = bw_range if bw_range else (BW_MIN, BW_MAX)
 
-    def clamp_pair(lo, hi):
-        lo = max(FREQ_MIN, lo if lo is not None else FREQ_MIN)
-        hi = min(FREQ_MAX, hi if hi is not None else FREQ_MAX)
+    def clamp_pair(lo, hi, minv, maxv):
+        lo = max(minv, lo if lo is not None else minv)
+        hi = min(maxv, hi if hi is not None else maxv)
         if hi < lo:
             lo, hi = hi, lo
         return int(lo), int(hi)
 
     if trigger == 'freq_range':
-        lo, hi = clamp_pair(cur_min, cur_max)
-        return [lo, hi], lo, hi
+        lo, hi = clamp_pair(cur_min, cur_max, FREQ_MIN, FREQ_MAX)
+        return [lo, hi], lo, hi, [cur_bw_min, cur_bw_max]
+    if trigger == 'bw_range':
+        bw_lo, bw_hi = clamp_pair(cur_bw_min, cur_bw_max, BW_MIN, BW_MAX)
+        return [cur_min, cur_max], cur_min, cur_max, [bw_lo, bw_hi]
 
     lo, hi = clamp_pair(min_in if min_in is not None else cur_min,
-                        max_in if max_in is not None else cur_max)
-    return [lo, hi], lo, hi
+                        max_in if max_in is not None else cur_max,
+                        FREQ_MIN, FREQ_MAX)
+    bw_lo, bw_hi = clamp_pair(cur_bw_min, cur_bw_max, BW_MIN, BW_MAX)
+    return [lo, hi], lo, hi, [bw_lo, bw_hi]
 
 # -------- when IDs are entered, auto-update Latitude & Longitude and set Radius=5 ----------
 @app.callback(
@@ -351,11 +390,13 @@ def sync_lat_lon_radius_from_ids(licence_query, site_query):
     Input('longitude', 'value'),
     Input('radius', 'value'),
     Input('freq_range', 'value'),
+    Input('bw_range', 'value'),
+    Input('bandwidth_input', 'value'),
     Input('licence_filter', 'value'),
     Input('site_filter', 'value'),
     prevent_initial_call=False
 )
-def update_plot(n_clicks, lat, lon, radius, freq_range, licence_query, site_query):
+def update_plot(n_clicks, lat, lon, radius, freq_range, bw_range, bandwidth_input, licence_query, site_query):
     # If ID filter mode is active -> ignore lat/lon, radius, freq_range and use only matched rows
     id_mode = bool((licence_query or "").strip() or (site_query or "").strip())
 
@@ -391,13 +432,21 @@ def update_plot(n_clicks, lat, lon, radius, freq_range, licence_query, site_quer
             )
             return fig
 
-        # Derive frequency span strictly from filtered rows
+        # Derive frequency and bandwidth span strictly from filtered rows
         lo, hi = derive_freq_span(filtered)
+        bw_lo, bw_hi = derive_bw_span(filtered)
         dynamic_min = lo if lo is not None else FREQ_MIN
         dynamic_max = hi if hi is not None else FREQ_MAX
+        dynamic_bw_min = bw_lo if bw_lo is not None else BW_MIN
+        dynamic_bw_max = bw_hi if bw_hi is not None else BW_MAX
 
+        # Apply bandwidth filter
+        filtered = filtered[(filtered["Bandwidth_MHz"] >= dynamic_bw_min) & (filtered["Bandwidth_MHz"] <= dynamic_bw_max)]
 
-        #Costinamo 736  2225: 2961 ->4940
+        # Apply bandwidth input filter if given
+        if bandwidth_input is not None:
+            filtered = filtered[filtered["Bandwidth_MHz"] == float(bandwidth_input)]
+
         # Build bars (no distance filter; use all matched rows)
         filtered = filtered.sort_values(["Device_Type", "MinFrequency", "MaxFrequency"]).reset_index(drop=True)
         filtered = assign_lanes(filtered)
@@ -449,14 +498,21 @@ def update_plot(n_clicks, lat, lon, radius, freq_range, licence_query, site_quer
         return fig
 
     # ---------- Normal mode (no ID filters) ----------
-    if None in [lat, lon, radius] or freq_range is None:
+    if None in [lat, lon, radius] or freq_range is None or bw_range is None:
         return go.Figure()
 
     min_freq, max_freq = freq_range
+    min_bw, max_bw = bw_range
     filtered = df[
         (df["MaxFrequency"] >= min_freq) &
-        (df["MinFrequency"] <= max_freq)
+        (df["MinFrequency"] <= max_freq) &
+        (df["Bandwidth_MHz"] >= min_bw) &
+        (df["Bandwidth_MHz"] <= max_bw)
     ].copy()
+
+    # Apply bandwidth input filter if given
+    if bandwidth_input is not None:
+        filtered = filtered[filtered["Bandwidth_MHz"] == float(bandwidth_input)]
 
     # Distance filter
     filtered["Distance"] = filtered.apply(
@@ -603,11 +659,13 @@ def display_click_info(clickData):
     State('longitude', 'value'),
     State('radius', 'value'),
     State('freq_range', 'value'),
+    State('bw_range', 'value'),
+    State('bandwidth_input', 'value'),
     State('licence_filter', 'value'),
     State('site_filter', 'value'),
     prevent_initial_call=True
 )
-def open_map_new_tab(n_clicks, lat, lon, radius, freq_range, licence_query, site_query):
+def open_map_new_tab(n_clicks, lat, lon, radius, freq_range, bw_range, bandwidth_input, licence_query, site_query):
     if not n_clicks:
         return {"opened": False}
 
@@ -615,7 +673,7 @@ def open_map_new_tab(n_clicks, lat, lon, radius, freq_range, licence_query, site
     fig = go.Figure()
 
     def dev_color(d):
-        return {"TX": "#60a5fa", "RX": "#14b8a6"}.get(d, "#a78bfa")
+        return {"TX": "#60a5fa", "RX": "#14b8a6"}.get(d, "#fa8b8b")
 
     if id_mode:
         # ID filter mode: ignore controls; plot only matched rows and center on them
@@ -624,6 +682,14 @@ def open_map_new_tab(n_clicks, lat, lon, radius, freq_range, licence_query, site
             nearby = apply_id_filter(nearby, LICENCE_NO_COL, licence_query)
         if SITE_ID_COL and (site_query or "").strip():
             nearby = apply_id_filter(nearby, SITE_ID_COL,    site_query)
+
+        # Apply bandwidth filter
+        bw_lo, bw_hi = derive_bw_span(nearby)
+        bw_min = bw_lo if bw_lo is not None else BW_MIN
+        bw_max = bw_hi if bw_hi is not None else BW_MAX
+        nearby = nearby[(nearby["Bandwidth_MHz"] >= bw_min) & (nearby["Bandwidth_MHz"] <= bw_max)]
+        if bandwidth_input is not None:
+            nearby = nearby[nearby["Bandwidth_MHz"] == float(bandwidth_input)]
 
         if nearby.empty:
             center_lat = lat if lat is not None else float(df["Latitude"].dropna().iloc[0])
@@ -693,10 +759,15 @@ def open_map_new_tab(n_clicks, lat, lon, radius, freq_range, licence_query, site
     else:
         # Normal mode: respect controls & filters by range/radius
         min_freq, max_freq = freq_range
+        min_bw, max_bw = bw_range
         nearby = df[
             (df["MaxFrequency"] >= min_freq) &
-            (df["MinFrequency"] <= max_freq)
+            (df["MinFrequency"] <= max_freq) &
+            (df["Bandwidth_MHz"] >= min_bw) &
+            (df["Bandwidth_MHz"] <= max_bw)
         ].copy()
+        if bandwidth_input is not None:
+            nearby = nearby[nearby["Bandwidth_MHz"] == float(bandwidth_input)]
         nearby["Distance"] = nearby.apply(
             lambda r: get_distance(lat, lon, r["Latitude"], r["Longitude"]), axis=1)
         nearby = nearby[nearby["Distance"] <= radius]

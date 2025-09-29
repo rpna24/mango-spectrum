@@ -2,5 +2,6 @@
     "liveServer.settings.port": 5501,
     "vs-browser.autoCompleteUrl": "https://www.google.com/search?q=",
     "vscode-edge-devtools.headless": true,
-    "liveServer.settings.AdvanceCustomBrowserCmdLine": ""
+    "liveServer.settings.AdvanceCustomBrowserCmdLine": "",
+    "editor.glyphMargin": true
 }
