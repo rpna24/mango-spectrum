@@ -440,6 +440,7 @@ def update_plot(n_clicks, lat, lon, radius, freq_range, bw_range, bandwidth_inpu
         dynamic_bw_min = bw_lo if bw_lo is not None else BW_MIN
         dynamic_bw_max = bw_hi if bw_hi is not None else BW_MAX
 
+<<<<<<< HEAD
         # Apply bandwidth filter
         filtered = filtered[(filtered["Bandwidth_MHz"] >= dynamic_bw_min) & (filtered["Bandwidth_MHz"] <= dynamic_bw_max)]
 
@@ -447,6 +448,8 @@ def update_plot(n_clicks, lat, lon, radius, freq_range, bw_range, bandwidth_inpu
         if bandwidth_input is not None:
             filtered = filtered[filtered["Bandwidth_MHz"] == float(bandwidth_input)]
 
+=======
+>>>>>>> dc26b6df0fb9132c7cd471f12ae198f42ecd5747
         # Build bars (no distance filter; use all matched rows)
         filtered = filtered.sort_values(["Device_Type", "MinFrequency", "MaxFrequency"]).reset_index(drop=True)
         filtered = assign_lanes(filtered)
